@@ -1,0 +1,56 @@
+import streamlit as st #creates web apps 
+import requests #fetches API data 
+import pandas as pd #processes data 
+import plotly.express as px #creates interactive charts 
+
+url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson" 
+
+st.title("Top 10 Earthquakes")
+
+data = requests.get(url, timeout=20).json()
+
+quake_data = pd.json_normalize(data["features"])
+quake_data = quake_data.nlargest(10, "properties.mag")
+colors = [ 
+
+    "#f58552", "#e46225", "#d74b19", 
+
+    "#fec54c", "#fdb737", "#e2a854", 
+
+    "#62b6d0", "#2d7496", "#0d3353", 
+
+    "#609f80", "#045944", "#1b4538" 
+
+] 
+
+ 
+
+fig = px.bar( 
+
+    quake_data, 
+
+    x="properties.mag", 
+
+    y="properties.place", 
+
+    orientation="h", 
+
+    labels={ 
+
+        "properties.mag": "Magnitude", 
+
+        "properties.place": "Earthquake location" 
+
+    } 
+
+) 
+
+  
+
+fig.update_traces(marker_color=colors) 
+
+fig.update_yaxes(autorange="reversed") 
+
+st.plotly_chart(fig) 
+
+ 
